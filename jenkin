@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+    stages {
+        stage('Pull from GitHub') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Arun-Kumar-Test/my-website.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                echo 'Building website...'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying website via Docker Nginx...'
+                script {
+                    // Remove old container if it exists
+                    sh 'docker rm -f my-website-nginx || true'
+                    
+                    // Run new Nginx container serving the website
+                    sh 'docker run -d -p 8081:80 --name my-website-nginx -v ${WORKSPACE}:/usr/share/nginx/html:ro nginx'
+                }
+            }
+        }
+    }
+    post {
+        always {
+            echo 'Pipeline finished.'
+        }
+    }
+}
