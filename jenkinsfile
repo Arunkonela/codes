@@ -1,28 +1,36 @@
 pipeline {
     agent any
+    
+    tools {
+        // Assumes you have a JDK named 'jdk17' configured in Jenkins Global Tool Configuration
+        jdk 'jdk17' 
+    }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/Arunkonela/codes.git',
-                    credentialsId: 'github-creds'
+                // Change this to your repository URL
+                git 'https://github.com/your-username/your-repo.git' 
             }
         }
+        
         stage('Build') {
             steps {
-                sh 'echo "Building project..."'
-            }
-        }
-        stage('Test') {
-            steps {
-                sh 'echo "Running tests..."'
-            }
-        }
-        stage('Deploy') {
-            steps {
-                sh 'echo "Deploying application..."'
-                sh 'echo "Hello jenkins"'
+                script {
+                    // Define the Artifactory server from Jenkins system config
+                    def server = Artifactory.server('my-artifactory-server')
+                    
+                    // Create a new Gradle build instance
+                    def rtGradle = Artifactory.newGradleBuild()
+                    rtGradle.server = server
+                    rtGradle.tool = 'gradle' // Use default Gradle wrapper
+                    
+                    // Run the 'clean build' Gradle task
+                    rtGradle.run tasks: 'clean build artifactoryPublish'
+                    
+                    // Publish build information to Artifactory
+                    server.publishBuildInfo rtGradle.createBuildInfo()
+                }
             }
         }
     }
