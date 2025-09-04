@@ -1,0 +1,35 @@
+plugins {
+    id 'java'
+    id "com.jfrog.artifactory" version "5.1.5" // Artifactory plugin
+}
+
+group = 'com.example'
+version = '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+// Artifactory Configuration
+artifactory {
+    contextUrl = "${artifactory_contextUrl}" // Will be provided by Jenkins
+    publish {
+        repository {
+            repoKey = 'my-app-releases' // The repo we created in Artifactory
+            username = "${artifactory_user}" // Will be provided by Jenkins
+            password = "${artifactory_password}" // Will be provided by Jenkins
+        }
+        defaults {
+            publications('mavenJava')
+        }
+    }
+}
