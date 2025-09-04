@@ -10,7 +10,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Change this to your repository URL
-                git 'https://github.com/your-username/your-repo.git' 
+                git 'https://github.com/Arunkonela/codes.git' 
             }
         }
         
