@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Get code from the GitHub repository
-                git branch=main url='https://github.com/Arunkonela/codes.git'
+                git branch='main' url='https://github.com/Arunkonela/codes.git'
             }
         }
         stage('Build') {
