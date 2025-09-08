@@ -1,0 +1,29 @@
+pipeline {
+    agent any // Run this pipeline on any available Jenkins agent
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Get code from the GitHub repository
+                git 'https://github.com/your-username/jenkins-hello-world.git'
+            }
+        }
+        stage('Build') {
+            steps {
+                // Build a Docker image from the Dockerfile
+                script {
+                    sh 'docker build -t hello-world-app .'
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                // Run the Docker container
+                script {
+                    sh 'docker rm -f hello-world-container || true'
+                    sh 'docker run -d --name hello-world-container -p 8081:80 hello-world-app'
+                }
+            }
+        }
+    }
+}
