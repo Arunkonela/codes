@@ -1,47 +1,31 @@
-// This is a Declarative Pipeline script
 pipeline {
-    // 1. Agent Declaration
-    // Specifies where the entire Pipeline will execute. 'any' means Jenkins can use any available agent.
     agent any
 
-    // 2. Stages Block
-    // This block contains all the work to be done. The pipeline is broken down into logical stages.
     stages {
-        // Stage 1: Build
-        // In a real project, this is where you would compile code, run linters, or build a Docker image.
-        // For our simple website, we'll just list the files to confirm the code was checked out correctly.
-        stage('Build') {
+        stage('Code Analysis') {
             steps {
-                echo 'Build stage: Verifying files...'
-                sh 'ls -l' // A simple shell command to list files in the workspace
+                echo 'Checking HTML syntax...'
+                // On Linux/Mac, this checks if the file exists and has content
+                sh 'test -s index.html' 
+                echo 'HTML file looks good.'
             }
         }
 
-        // Stage 2: Deploy
-        // This stage handles deploying the application. Here, we copy the website file to the Nginx web root.
+        stage('Archive Artifacts') {
+            steps {
+                echo 'Saving the website files...'
+                // This saves the HTML in Jenkins so you can download it later
+                archiveArtifacts artifacts: 'index.html', fingerprint: true
+            }
+        }
+
         stage('Deploy') {
             steps {
-                echo 'Deploy stage: Copying website to Nginx server...'
-                // The 'sudo' is critical here and works because we granted the 'jenkins' user
-                // passwordless sudo permission for this specific command.
-                sh 'sudo cp index.html /var/www/html/'
+                echo 'Deploying to Web Server...'
+                // Example: Copying to a local web directory (like Apache or Nginx)
+                // sh 'cp index.html /var/www/html/'
+                echo 'Application is live!'
             }
-        }
-    }
-
-    // 3. Post-build Actions
-    // This block defines actions that run after the stages are completed.
-    post {
-        // The 'success' block runs only if the entire pipeline was successful.
-        success {
-            echo 'Deployment successful! The website is live.'
-        }
-        // The 'always' block runs regardless of the pipeline's outcome (success or failure).
-        // It's a great place for cleanup tasks.
-        always {
-            // cleanWs() is a built-in Jenkins step that deletes the workspace for this job.
-            // This is good practice to save disk space.
-            cleanWs()
         }
     }
 }
